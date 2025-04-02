@@ -217,8 +217,8 @@
         this.size = config[0];
         this.strikeSize = config[1];
         this.moveStrategy = config[2];
-        this.learning = config[4];
-        this.training = config[5];
+        this.learning = config[3];
+        this.training = config[4];
 
         window.gameWorker.postMessage(['TRAINING', this.training ])
 
