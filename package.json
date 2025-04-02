@@ -2,7 +2,7 @@
   "type": "module",
   "name": "tic-tac-toe-nxn",
   "version": "0.0.0",
-  "description": "Reinforcment Learning TicTacToe",
+  "description": "Reinforcement Learning TicTacToe",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
