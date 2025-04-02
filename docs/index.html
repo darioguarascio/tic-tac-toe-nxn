@@ -12,7 +12,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
-<link rel="stylesheet" href="/tic-tac-toe-nxn/_astro/index.BiWNn9PM.css"></head>
+<link rel="stylesheet" href="/tic-tac-toe-nxn/_astro/index.DgaI-yZD.css"></head>
 
 <body>
 
@@ -25,7 +25,7 @@
   </section>
 
   <div class="container flex justify-center mt-10">
-    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', autoplayer: 'random', learning: 'original', training: 'none' }" class="w-full max-w-xs" x-show="visible">
+    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', learning: 'original', training: 'none' }" class="w-full max-w-xs" x-show="visible">
       <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col gap-y-4">
 
         <div class="mb-4">
@@ -115,7 +115,7 @@
  -->
 
         <div class="flex items-center justify-center">
-          <button @click="visible = false; $dispatch('newgame', [size,strike,strategy,autoplayer,learning,training])" class="relative flex h-12 items-center justify-center px-8
+          <button @click="visible = false; $dispatch('newgame', [size,strike,strategy,learning,training])" class="relative flex h-12 items-center justify-center px-8
           before:absolute before:inset-0 before:rounded-full before:bg-teal-500 before:transition
           before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95
           ">
@@ -138,14 +138,14 @@
       <label id="toggle-switch-label" for="toggle-switch" class="font-sm tracking-wide font-bold uppercase text-gray-800">
         Autoplay
       </label>
-      <button @click="toggle($el)" id="toggle-switch" type="button" role="switch" :aria-checked="train" class="group flex w-14 h-8 p-1 rounded-full bg-slate-400 transition-colors duration-200 ease-in-out overflow-hidden outline-none focus-visible:ring focus-visible:ring-purple-400 aria-checked:bg-teal-400">
-      <span class="w-6 h-6 rounded-full bg-white transition-transform duration-200 ease-in-out group-aria-checked:translate-x-full"></span>
-      </button>
-    </div>
-    <div>
       <div>
         <div class="flex items-center">
-          <input checked="checked" id="autoplayer-random" type="radio" value="random" name="autoplayer" x-model="autoplayer">
+          <input checked="checked" id="autoplayer-off" type="radio" value="" name="autoplayer" x-model="autoplayer">
+          <label for="autoplayer-off" class="ms-2 text-sm font-medium text-gray-600">OFF</label>
+        </div>
+
+        <div class="flex items-center">
+          <input id="autoplayer-random" type="radio" value="random" name="autoplayer" x-model="autoplayer">
           <label for="autoplayer-random" class="ms-2 text-sm font-medium text-gray-600">Random moves</label>
         </div>
         <div class="flex items-center">
@@ -153,6 +153,7 @@
           <label for="autoplayer-optimal" class="ms-2 text-sm font-medium text-gray-600">Optimal moves</label>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -187,8 +188,8 @@
 
 
 
-<script type="module">window.playerWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/player-Da-VQCRS.js",import.meta.url),{type:"module"});window.gameWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/game-BOBGhnJI.js",import.meta.url),{type:"module"});window.gameWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("gamemsg",{detail:e.data}))};window.playerWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("playermsg",{detail:e.data}))};
-//# sourceMappingURL=Menace.astro_astro_type_script_index_0_lang.CZvHXb9t.js.map</script>
+<script type="module">window.playerWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/player-B9t8Sc0O.js",import.meta.url),{type:"module"});window.gameWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/game-BOBGhnJI.js",import.meta.url),{type:"module"});window.gameWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("gamemsg",{detail:e.data}))};window.playerWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("playermsg",{detail:e.data}))};
+//# sourceMappingURL=Menace.astro_astro_type_script_index_0_lang.BsCvL63d.js.map</script>
 
 
 <script>
@@ -201,9 +202,7 @@
       visible: false,
 
       speed: 5,
-      train: false,
-
-      size: 0, strike: 0, moveStrategy: null, autoplayer: null, learning: null, training: null, firstPlayer: false,
+      size: 0, strike: 0, moveStrategy: null, autoplayer: '', learning: null, training: null, firstPlayer: false,
 
       state: [],
       moves: [],
@@ -213,23 +212,11 @@
         draws: 0,
       },
 
-      toggle(btn) {
-        if (btn.getAttribute("aria-checked") === "true") {
-          btn.setAttribute("aria-checked", "false");
-          this.train = false;
-        } else {
-          btn.setAttribute("aria-checked", "true");
-          this.train = true;
-          this.play();
-        }
-
-      },
       newGame(e) {
         const config = e.detail;
         this.size = config[0];
         this.strikeSize = config[1];
         this.moveStrategy = config[2];
-        this.autoplayer = config[3];
         this.learning = config[4];
         this.training = config[5];
 
@@ -338,7 +325,7 @@
             }
           }
 
-          setTimeout(this.restart.bind(this), this.train ? this.speed : 1000)
+          setTimeout(this.restart.bind(this), !!this.autoplayer ? this.speed : 1000)
 
 
 
@@ -346,11 +333,12 @@
       },
 
       async init() {
+        this.$watch('autoplayer', (value, oldValue) => this.play() )
       // this.play();
       },
 
       play() {
-        if (this.train) {
+        if (!!this.autoplayer) {
           window.playerWorker.postMessage([ this.autoplayer, this.state.join(''), this.strikeSize ])
         }
       },
