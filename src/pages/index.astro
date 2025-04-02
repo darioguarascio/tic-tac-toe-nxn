@@ -9,7 +9,7 @@ import Menace from '../components/Menace.astro'
 
 
   <div class="container flex justify-center mt-10">
-    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', learning: 'original', training: 'none' }" x-show="visible" class="max-w-6xl">
+    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', training: 'none' }" x-show="visible" class="max-w-6xl">
 
       <h1 class="text-center text-5xl font-bold text-gray-600 py-12">TicTacToe with Reinforcement Learning</h1>
 
@@ -17,7 +17,12 @@ import Menace from '../components/Menace.astro'
         Inspired by <a href="https://github.com/antirez">Salvatore Sanfilippo</a>
         educational <a href="https://www.youtube.com/watch?v=GfwFNKCys9c">video</a> on
         <a href="https://en.wikipedia.org/wiki/Matchbox_Educable_Noughts_and_Crosses_Engine">how matchboxes can learn to play tic-tac-toe</a>,
-        here is a web-based implementation of the same approach, extended to have a configurable grid and strike sizes.
+        here is a web-based implementation using the original <a href="https://en.wikipedia.org/wiki/Donald_Michie">Donald Michie</a> approach, extended to have a configurable grid and strike sizes.<br/><br/>
+        It is possible to start with an untrained machine or play against a pre-trained one by loading <a href="/tic-tac-toe-nxn/pretrained-data-3x3.json">training data</a>.
+        For each played move, all possible counter-moves will be shown, with their scores (probability of being played). The more games are played,
+        the better the machine becomes by refining these scores.<br /><br />
+        To train the machine you can enable the Autoplay mode, to automatically play games at fast pace and watch the machine performance improve over time.
+
       </p>
 
 
@@ -39,22 +44,6 @@ import Menace from '../components/Menace.astro'
         </div>
 
         <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="learning">
-            Learning method
-          </label>
-          <div>
-            <div class="flex items-center">
-                <input checked="checked" id="learning-original" type="radio" value="original" name="learning" x-model="learning">
-                <label for="learning-original" class="ms-2 text-sm font-medium text-gray-600">Original (as per MENACE)</label>
-            </div>
-            <div class="flex items-center">
-                <input disabled id="learning-neural-network" type="radio" value="neural-network" name="learning" x-model="learning">
-                <label for="strategy-neural-network" class="ms-2 text-sm font-medium text-gray-300">Neural Network (coming soon)</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="training">
             Initial training
           </label>
@@ -71,7 +60,7 @@ import Menace from '../components/Menace.astro'
         </div>
 
         <div class="flex items-center justify-center">
-          <button @click="visible = false; $dispatch('newgame', [size,strike,strategy,learning,training])" class="relative flex h-12 items-center justify-center px-8
+          <button @click="visible = false; $dispatch('newgame', [size,strike,strategy,training])" class="relative flex h-12 items-center justify-center px-8
           before:absolute before:inset-0 before:rounded-full before:bg-teal-500 before:transition
           before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95
           ">

@@ -105,7 +105,6 @@ import '../styles/global.css';
       strike: 0,
       moveStrategy: null,
       autoplayer: '',
-      learning: null,
       training: null,
       firstPlayer: false,
 
@@ -122,8 +121,7 @@ import '../styles/global.css';
         this.size = config[0];
         this.strikeSize = config[1];
         this.moveStrategy = config[2];
-        this.learning = config[3];
-        this.training = config[4];
+        this.training = config[3];
 
         window.gameWorker.postMessage(['TRAINING', this.training ])
 
