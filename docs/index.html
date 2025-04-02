@@ -1,33 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reinforcement Learning TicTacToe</title>
+  <title>Reinforcement Learning TicTacToe</title>
 
-    <meta charset="utf-8">
-    <meta name="description" content="Web-based implementation of a Reinforcement Learning algorithm playing an extended version of the TicTacToe game, where you can set grid size and strike lenght">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8">
+  <meta name="description" content="Web-based implementation of a Reinforcement Learning algorithm playing an extended version of the TicTacToe game, where you can set grid size and strike lenght">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
-<link rel="stylesheet" href="/tic-tac-toe-nxn/_astro/index.DgaI-yZD.css"></head>
+<link rel="stylesheet" href="/tic-tac-toe-nxn/_astro/index.ulQFqHRZ.css"></head>
 
 <body>
+
+  <a href="https://github.com/darioguarascio/tic-tac-toe-nxn" class="github-corner" aria-label="View source on GitHub">
+    <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+      <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+    </svg>
+  </a>
+
+
+
 
   
 
 
-  <section class="container">
-    <!-- <h1 class="text-center text-7xl font-bold text-gray-600 uppercase tracking-widest py-12">MENACE</h1> -->
-    <!-- <h2 class="text-center text-xl text-gray-400 italic ">Matchbox Educable Noughts and Crosses Engine</h2> -->
-  </section>
-
   <div class="container flex justify-center mt-10">
-    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', learning: 'original', training: 'none' }" class="w-full max-w-xs" x-show="visible">
-      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col gap-y-4">
+    <div x-data="{ visible: true, size: 3, strike: 3, strategy: 'best', learning: 'original', training: 'none' }" x-show="visible" class="max-w-6xl">
 
+      <h1 class="text-center text-5xl font-bold text-gray-600 py-12">TicTacToe with Reinforcement Learning</h1>
+
+      <p class="max-w-4xl mx-auto">
+        Inspired by <a href="https://github.com/antirez">Salvatore Sanfilippo</a>
+        educational <a href="https://www.youtube.com/watch?v=GfwFNKCys9c">video</a> on
+        <a href="https://en.wikipedia.org/wiki/Matchbox_Educable_Noughts_and_Crosses_Engine">how matchboxes can learn to play tic-tac-toe</a>,
+        here is a web-based implementation of the same approach, extended to have a configurable grid and strike sizes.
+      </p>
+
+
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col gap-y-4 w-full max-w-xs mx-auto mt-10">
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="size">
             Grid size
@@ -42,30 +58,10 @@
           <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="winning-strike" type="number" placeholder="IE: 3" value="3" name="strike" x-model="strike">
         </div>
 
-        <!--
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="grid-size">
-            Move picking strategy
-          </label>
-
-          <div>
-            <div class="flex items-center">
-                <input checked="checked" id="strategy-weighted-random" type="radio" value="weighted-random" name="strategy" x-model="strategy">
-                <label for="strategy-weighted-random" class="ms-2 text-sm font-medium text-gray-600">Weighted random</label>
-            </div>
-            <div class="flex items-center">
-                <input id="strategy-best-scoring" type="radio" value="best-scoring" name="strategy" x-model="strategy">
-                <label for="strategy-best-scoring" class="ms-2 text-sm font-medium text-gray-600">Best scoring</label>
-            </div>
-          </div>
-        </div>
-        -->
-
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="learning">
             Learning method
           </label>
-
           <div>
             <div class="flex items-center">
                 <input checked="checked" id="learning-original" type="radio" value="original" name="learning" x-model="learning">
@@ -82,7 +78,6 @@
           <label class="block text-gray-700 text-sm font-bold mb-2" for="training">
             Initial training
           </label>
-
           <div>
             <div class="flex items-center">
                 <input checked="checked" id="training-none" type="radio" value="none" name="training" x-model="training">
@@ -95,39 +90,17 @@
           </div>
         </div>
 
-
-
-<!--         <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="first-player">
-            Who starts
-          </label>
-
-          <div class="flex items-center mb-4">
-              <input checked="checked" id="first-player-human" type="radio" value="human" name="first-player" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300">
-              <label for="first-player-human" class="ms-2 text-sm font-medium">Human</label>
-          </div>
-          <div class="flex items-center">
-              <input id="first-player-machine" type="radio" value="machine" name="first-player" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300">
-              <label for="first-player-machine" class="ms-2 text-sm font-medium">Machine</label>
-          </div>
-
-        </div>
- -->
-
         <div class="flex items-center justify-center">
           <button @click="visible = false; $dispatch('newgame', [size,strike,strategy,learning,training])" class="relative flex h-12 items-center justify-center px-8
           before:absolute before:inset-0 before:rounded-full before:bg-teal-500 before:transition
           before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95
           ">
-          <span class="relative text-base font-semibold text-white dark:text-dark">New Game</span>
-        </button>
-
+            <span class="relative text-base font-semibold text-white dark:text-dark">New Game</span>
+          </button>
+        </div>
       </div>
     </div>
-
-
   </div>
-</div>
 
 
   <div id="menace" class="container mt-10" x-show="visible" x-data="menace" x-cloak @newgame.window="visible = true; newGame($event)" @gamemsg.window="game($event)" @playermsg.window="player($event)">
@@ -188,8 +161,8 @@
 
 
 
-<script type="module">window.playerWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/player-B9t8Sc0O.js",import.meta.url),{type:"module"});window.gameWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/game-D6wU7f1j.js",import.meta.url),{type:"module"});window.gameWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("gamemsg",{detail:e.data}))};window.playerWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("playermsg",{detail:e.data}))};
-//# sourceMappingURL=Menace.astro_astro_type_script_index_0_lang.Bl-HBffX.js.map</script>
+<script type="module">window.playerWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/player-DMqe4w_I.js",import.meta.url),{type:"module"});window.gameWorker=new Worker(new URL("/tic-tac-toe-nxn/_astro/game-D6wU7f1j.js",import.meta.url),{type:"module"});window.gameWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("gamemsg",{detail:e.data}))};window.playerWorker.onmessage=e=>{window.dispatchEvent(new CustomEvent("playermsg",{detail:e.data}))};
+//# sourceMappingURL=Menace.astro_astro_type_script_index_0_lang.DNP6RfP6.js.map</script>
 
 
 <script>
@@ -202,7 +175,13 @@
       visible: false,
 
       speed: 5,
-      size: 0, strike: 0, moveStrategy: null, autoplayer: '', learning: null, training: null, firstPlayer: false,
+      size: 0,
+      strike: 0,
+      moveStrategy: null,
+      autoplayer: '',
+      learning: null,
+      training: null,
+      firstPlayer: false,
 
       state: [],
       moves: [],
@@ -237,7 +216,7 @@
           this.getCell(i).classList.remove('draw')
           this.getCell(i).classList.remove('winner')
         }
-      // this.paint()
+
         setTimeout(this.play.bind(this), this.speed)
 
       },
@@ -251,11 +230,7 @@
         const move = e.detail;
 
         if ( typeof(move) != 'number' ) {
-        // console.log(this.state.join(''))
-        // console.log(this.autoplayer)
           window.playerWorker.postMessage([ this.autoplayer, this.state.join(''), this.strikeSize ])
-
-        // throw new Error('missing move')
         } else {
           this.state[ move ] = 0;
           this.paint();
@@ -294,8 +269,6 @@
             score.innerHTML = move[1]
             div.appendChild(score)
             div.appendChild(c)
-            // p.appendChild();
-
             this.$refs.moves.appendChild(div)
           }
 
@@ -308,12 +281,9 @@
           this.paint()
           this.$refs.moves.innerHTML ='';
           const data = e.detail[1]
-          // setTimeout( this.reset.bind(this) , 500)
-          // let data = await resp.json();
           this.stats = data.stats;
           updateChart(data.stats)
-          // this.state = data.state;
-          // this.paint()
+
           if (data.winner === "draw") {
             for (let i = 0; i < (this.size * this.size); i++) {
               this.getCell(i).classList.add('draw')
@@ -326,15 +296,11 @@
           }
 
           setTimeout(this.restart.bind(this), !!this.autoplayer ? this.speed : 1000)
-
-
-
         }
       },
 
       async init() {
         this.$watch('autoplayer', (value, oldValue) => this.play() )
-      // this.play();
       },
 
       play() {
@@ -345,13 +311,11 @@
 
 
       paint() {
-        if (true) {
-          for (let i in this.state) {
-            let cell = this.getCell(i)
-            if (cell) {
-              cell.innerHTML = `<span class="cell-played cell-content-${this.state[i]}">${this.getSymbol(this.state[i])}</span>`
-              cell.dataset.empty = this.state[i] == 2 ? 1 : 0
-            }
+        for (let i in this.state) {
+          let cell = this.getCell(i)
+          if (cell) {
+            cell.innerHTML = `<span class="cell-played cell-content-${this.state[i]}">${this.getSymbol(this.state[i])}</span>`
+            cell.dataset.empty = this.state[i] == 2 ? 1 : 0
           }
         }
       },
@@ -463,79 +427,65 @@
 
 <script>
 
+
   var dataPoints1 = [];
   var dataPoints2 = [];
   var dataPoints3 = [];
 
   var chart = new CanvasJS.Chart("chart", {
-  // zoomEnabled: true,
-  theme: "light2", // "light1", "light2", "dark1", "dark2"
-  title: {
-    // text: "Share Value of Two Companies"
-  },
-  axisX: {
-    // title: "chart updates every 3 secs"
-  },
-  toolTip: {
-    shared: true
-  },
-  legend: {
-    cursor:"pointer",
-    verticalAlign: "top",
-    fontSize: 22,
-    fontColor: "dimGrey",
-    itemclick : toggleDataSeries
-  },
-  data: [{
-    type: "line",
-    xValueType: "dateTime",
-    showInLegend: true,
-    name: "Player",
-    color: "#fb2c36",
-    dataPoints: dataPoints1
-  },
-  {
-    type: "line",
-    xValueType: "dateTime",
-    showInLegend: true,
-    name: "Machine" ,
-    color: "#2b7fff",
-    dataPoints: dataPoints2
-  },    {
-    type: "line",
-    xValueType: "dateTime",
-    showInLegend: true,
-    name: "Draws" ,
-    color: "#6a7282",
-    dataPoints: dataPoints3
-  }]
-});
-
-  function toggleDataSeries(e) {
-    if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-      e.dataSeries.visible = false;
-    }
-    else {
-      e.dataSeries.visible = true;
-    }
-    chart.render();
-  }
+    theme: "light2",
+    axisX: {
+      title: "Games"
+    },
+    axisY: {
+      title: "Scores"
+    },
+    toolTip: {
+      shared: true
+    },
+    legend: {
+      cursor:"pointer",
+      verticalAlign: "top",
+      fontSize: 22,
+      fontColor: "dimGrey"
+    },
+    data: [{
+      type: "line",
+      showInLegend: true,
+      name: "Player",
+      color: "#fb2c36",
+      dataPoints: dataPoints1
+    },
+    {
+      type: "line",
+      showInLegend: true,
+      name: "Machine" ,
+      color: "#2b7fff",
+      dataPoints: dataPoints2
+    },    {
+      type: "line",
+      showInLegend: true,
+      name: "Draws" ,
+      color: "#6a7282",
+      dataPoints: dataPoints3
+    }]
+  });
 
   function updateChart(stats) {
-    let time = new Date().getTime()
+    let time = dataPoints1.length
 
     dataPoints1.push({
-      x: time,
+      x: time+1,
       y: parseInt(stats.player),
       color: "#fb2c36",
     });
     dataPoints2.push({
-      x: time,
+      x: time+1,
       y: parseInt(stats.machine),
       color: "#2b7fff",
     });
     dataPoints3.push({
-      x: time,
+      x: time+1,
       color: "#6a7282",
       y: parseInt(stats.draws)
     });
@@ -545,8 +495,6 @@
 
 
 </script>
-
-
 
 
 
