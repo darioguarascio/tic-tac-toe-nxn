@@ -1,0 +1,55 @@
+[x-cloak] { display: none !important; }
+
+.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+
+p a {
+  @apply underline text-teal-600
+}
+#grid {
+  @apply grid mx-auto justify-items-center bg-gray-200 gap-3
+}
+.cell {
+  @apply size-20 flex justify-center items-center cursor-pointer bg-white;
+}
+.cell.winner {
+  @apply bg-green-100;
+}
+.cell.draw {
+  @apply bg-gray-100;
+}
+
+.cell-played {
+  @apply text-5xl font-bold;
+}
+
+.cell-content-0 {
+  @apply text-red-500
+}
+.cell-content-1 {
+  @apply text-blue-500;
+}
+
+#moves > canvas:first-child {
+  @apply bg-green-100;
+}
+#moves div {
+  @apply items-center justify-center text-center;
+}
+
+
+input[type="radio"] {
+  @apply h-4 w-4 appearance-none rounded-full border-2 border-teal-500;
+}
+
+input[type="radio"]:checked {
+  @apply border-0 bg-teal-500 ring-0;
+}
+
+input[type="radio"]:checked::before {
+  content: "";
+  @apply mx-auto block rounded-full bg-white;
+}
+
+input[type="radio"]:focus {
+  @apply outline-none ring-0;
+}

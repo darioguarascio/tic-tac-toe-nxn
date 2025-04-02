@@ -1,0 +1,424 @@
+---
+import '../styles/global.css';
+---
+
+
+<div id="menace" class="container mt-10" x-show="visible"
+  x-data="menace"
+  x-cloak
+  @newgame.window="visible = true; newGame($event)"
+  @gamemsg.window="game($event)"
+  @playermsg.window="player($event)">
+
+
+  <div class="flex flex-col justify-center items-center">
+    <div class="mb-4 flex flex-row justify-start items-center gap-x-6">
+      <label id="toggle-switch-label" for="toggle-switch" class="font-sm tracking-wide font-bold uppercase text-gray-800">
+        Autoplay
+      </label>
+      <div>
+        <div class="flex items-center">
+          <input checked="checked" id="autoplayer-off" type="radio" value="" name="autoplayer" x-model="autoplayer">
+          <label for="autoplayer-off" class="ms-2 text-sm font-medium text-gray-600">OFF</label>
+        </div>
+
+        <div class="flex items-center">
+          <input id="autoplayer-random" type="radio" value="random" name="autoplayer" x-model="autoplayer">
+          <label for="autoplayer-random" class="ms-2 text-sm font-medium text-gray-600">Random moves</label>
+        </div>
+        <div class="flex items-center">
+          <input id="autoplayer-optimal" type="radio" value="optimal" name="autoplayer" x-model="autoplayer">
+          <label for="autoplayer-optimal" class="ms-2 text-sm font-medium text-gray-600">Optimal moves</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="mt-10 flex flex-row justify-center items-start gap-x-12">
+    <div>
+      <div class="border rounded-lg shadow-lg p-4">
+        <div
+          x-ref="grid"
+          id="grid"
+          :class="'grid-cols-' + size"
+          :style="'width: ' + ((20 * 4 * size) + (12 * (size-1))) + 'px'">
+
+          <template x-for="i in size*size">
+            <div class="cell"
+              data-empty="1"
+              :data-cell="i"
+              :id="'cell-' + (i-1)"
+              @click="move(i)">
+            </div>
+          </template>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="justify-center flex flex-row gap-x-6 mt-10">
+    <span><strong class="font-bold text-red-500">O</strong> Player: <span x-text="stats.player"></span></span>
+    <span><strong class="font-bold text-blue-500">X</strong> Machine: <span x-text="stats.machine"></span></span>
+    <span>Draws: <span x-text="stats.draws"></span></span>
+  </h3>
+
+
+  <div class="mt-10">
+    <h3 class="">Moves and scores</h3>
+    <div id="moves" x-ref="moves" class="flex flex-row gap-x-3 mt-4 h-16"></div>
+  </div>
+
+</div>
+
+
+
+<script>
+
+
+  window.playerWorker = new Worker(new URL('../workers/player.ts', import.meta.url), {type: 'module'})
+  window.gameWorker = new Worker(new URL('../workers/game.ts', import.meta.url), {type: 'module'});
+
+  window.gameWorker.onmessage = (event) => {
+    window.dispatchEvent(new CustomEvent("gamemsg", { "detail": event.data } ));
+  };
+
+  window.playerWorker.onmessage = (event) => {
+    window.dispatchEvent(new CustomEvent("playermsg", { "detail": event.data } ));
+  };
+
+</script>
+
+
+<script is:inline>
+
+
+  document.addEventListener('alpine:init', () => {
+
+
+    Alpine.data('menace', () => ({
+      visible: false,
+
+      speed: 5,
+      size: 0,
+      strike: 0,
+      moveStrategy: null,
+      autoplayer: '',
+      learning: null,
+      training: null,
+      firstPlayer: false,
+
+      state: [],
+      moves: [],
+      stats: {
+        player: 0,
+        machine: 0,
+        draws: 0,
+      },
+
+      newGame(e) {
+        const config = e.detail;
+        this.size = config[0];
+        this.strikeSize = config[1];
+        this.moveStrategy = config[2];
+        this.learning = config[3];
+        this.training = config[4];
+
+        window.gameWorker.postMessage(['TRAINING', this.training ])
+
+        setTimeout(this.restart.bind(this), 100)
+      },
+
+
+      restart() {
+        this.reset()
+      },
+
+      reset(e) {
+        window.gameWorker.postMessage(['NEW_GAME', this.size, this.strikeSize ])
+        this.$refs.moves.innerHTML ='';
+        for (let i = 0; i < (this.size * this.size); i++) {
+          this.getCell(i).classList.remove('draw')
+          this.getCell(i).classList.remove('winner')
+        }
+
+        setTimeout(this.play.bind(this), this.speed)
+
+      },
+
+      getCell(i) {
+        return document.querySelector(`#cell-${i}`)
+      },
+
+
+      player(e) {
+        const move = e.detail;
+
+        if ( typeof(move) != 'number' ) {
+          window.playerWorker.postMessage([ this.autoplayer, this.state.join(''), this.strikeSize ])
+        } else {
+          this.state[ move ] = 0;
+          this.paint();
+          window.gameWorker.postMessage(['MOVE', move])
+        }
+      },
+
+      game(e) {
+        switch (e.detail[0]) {
+        case "TRAIN_DATA":
+          console.log(JSON.stringify(e.detail[1]))
+          break;
+
+        case "NEW_GAME":
+          this.state = e.detail[1].state
+          this.paint()
+          break;
+
+        case "STATE":
+          let state = Array.from(e.detail[1].state);
+          this.state = e.detail[1].state
+
+          this.paint()
+
+          this.$refs.moves.innerHTML = '';
+
+
+          for (let move of e.detail[1].moves) {
+            let beforeMoveState = Array.from(state)
+            beforeMoveState[ e.detail[1].move ] = 2;
+            beforeMoveState[ move[0] ] = 1;
+
+            let c = this.thumbnail(beforeMoveState, move[0], 50);
+            let div = document.createElement('div')
+            let score = document.createElement('span')
+            score.innerHTML = move[1]
+            div.appendChild(score)
+            div.appendChild(c)
+            this.$refs.moves.appendChild(div)
+          }
+
+
+          setTimeout(this.play.bind(this), this.speed)
+          break;
+
+        case "END":
+          this.state = e.detail[1].state
+          this.paint()
+          this.$refs.moves.innerHTML ='';
+          const data = e.detail[1]
+          this.stats = data.stats;
+          updateChart(data.stats)
+
+          if (data.winner === "draw") {
+            for (let i = 0; i < (this.size * this.size); i++) {
+              this.getCell(i).classList.add('draw')
+            }
+
+          } else {
+            for (let i of data.strike) {
+              this.getCell(i).classList.add('winner')
+            }
+          }
+
+          setTimeout(this.restart.bind(this), !!this.autoplayer ? this.speed : 1000)
+        }
+      },
+
+      async init() {
+        this.$watch('autoplayer', (value, oldValue) => this.play() )
+      },
+
+      play() {
+        if (!!this.autoplayer) {
+          window.playerWorker.postMessage([ this.autoplayer, this.state.join(''), this.strikeSize ])
+        }
+      },
+
+
+      paint() {
+        for (let i in this.state) {
+          let cell = this.getCell(i)
+          if (cell) {
+            cell.innerHTML = `<span class="cell-played cell-content-${this.state[i]}">${this.getSymbol(this.state[i])}</span>`
+            cell.dataset.empty = this.state[i] == 2 ? 1 : 0
+          }
+        }
+      },
+
+      getSymbol(x) {
+        switch (x) {
+        case 0:
+          return "O";
+
+        case 1:
+          return "X";
+
+        case 2:
+        default:
+          return "";
+        }
+      },
+
+      move() {
+        let cell = parseInt(this.$el.dataset.cell) -1;
+        window.gameWorker.postMessage(['MOVE', cell])
+      },
+
+      thumbnail(gridData, move, hw) {
+
+        const size = Math.sqrt(gridData.length);
+        const rows = size;
+        const cols = size;
+
+
+        const canvas = document.createElement('canvas')
+        canvas.width = hw
+        canvas.height= hw
+        const ctx = canvas.getContext('2d');
+        const cellSize = canvas.width / cols;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Set line properties to 3px thickness and #e5e7eb color
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 3;
+
+      // Vertical lines (excluding outer borders)
+        for (let i = 1; i < cols; i++) {
+          ctx.beginPath();
+          ctx.moveTo(i * cellSize, 0);
+          ctx.lineTo(i * cellSize, canvas.height);
+          ctx.stroke();
+        }
+
+      // Horizontal lines (excluding outer borders)
+        for (let i = 1; i < rows; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, i * cellSize);
+          ctx.lineTo(canvas.width, i * cellSize);
+          ctx.stroke();
+        }
+
+      // Draw cell symbols based on values
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            const index = row * cols + col;
+            const value = gridData[index];
+
+          // Calculate center position and size for the cell
+            const x = col * cellSize + cellSize / 2;
+            const y = row * cellSize + cellSize / 2;
+          const symbolSize = cellSize * 0.6; // Size of symbol relative to cell
+
+          if (value === 0) {
+            ctx.strokeStyle = index === move ? 'red' : 'grey';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, symbolSize / 2, 0, Math.PI * 2);
+            ctx.stroke();
+          } else if (value === 1) {
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = index === move ? 'blue' : 'grey';
+            // First line of X
+            ctx.beginPath();
+            ctx.moveTo(x - symbolSize / 2, y - symbolSize / 2);
+            ctx.lineTo(x + symbolSize / 2, y + symbolSize / 2);
+            ctx.stroke();
+
+            // Second line of X
+            ctx.beginPath();
+            ctx.moveTo(x + symbolSize / 2, y - symbolSize / 2);
+            ctx.lineTo(x - symbolSize / 2, y + symbolSize / 2);
+            ctx.stroke();
+          }
+          // If value is 2, leave the cell empty
+        }
+      }
+
+      return canvas;
+    }
+
+
+  }))
+})
+</script>
+
+
+
+<div class="container mt-10 py-20">
+  <div id="chart" style="height: 370px; width: 100%;"></div>
+</div>
+
+
+<script is:inline>
+
+
+  var dataPoints1 = [];
+  var dataPoints2 = [];
+  var dataPoints3 = [];
+
+  var chart = new CanvasJS.Chart("chart", {
+    theme: "light2",
+    axisX: {
+      title: "Games"
+    },
+    axisY: {
+      title: "Scores"
+    },
+    toolTip: {
+      shared: true
+    },
+    legend: {
+      cursor:"pointer",
+      verticalAlign: "top",
+      fontSize: 22,
+      fontColor: "dimGrey"
+    },
+    data: [{
+      type: "line",
+      showInLegend: true,
+      name: "Player",
+      color: "#fb2c36",
+      dataPoints: dataPoints1
+    },
+    {
+      type: "line",
+      showInLegend: true,
+      name: "Machine" ,
+      color: "#2b7fff",
+      dataPoints: dataPoints2
+    },    {
+      type: "line",
+      showInLegend: true,
+      name: "Draws" ,
+      color: "#6a7282",
+      dataPoints: dataPoints3
+    }]
+  });
+
+  function updateChart(stats) {
+    let time = dataPoints1.length
+
+    dataPoints1.push({
+      x: time+1,
+      y: parseInt(stats.player),
+      color: "#fb2c36",
+    });
+    dataPoints2.push({
+      x: time+1,
+      y: parseInt(stats.machine),
+      color: "#2b7fff",
+    });
+    dataPoints3.push({
+      x: time+1,
+      color: "#6a7282",
+      y: parseInt(stats.draws)
+    });
+
+    chart.render();
+  }
+
+
+</script>
+
